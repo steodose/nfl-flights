@@ -1,0 +1,10 @@
+^cache$
+^scripts$
+^helmets$
+^\.github$
+^renv$
+^renv\.lock$
+^Dashboard-2\.png$
+^.*\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$

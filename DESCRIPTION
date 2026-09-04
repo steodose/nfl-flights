@@ -1,0 +1,28 @@
+Package: nflflights
+Title: NFL Team Charter Flight Data Pipeline
+Version: 0.1.0
+Authors@R:
+    person("Stephan", "Teodosescu", email = "steodose@gmail.com", role = c("aut", "cre"))
+Description: Scrapes, normalizes and enriches NFL team charter flight schedules
+    published on blog.jettip.net, producing a single flat CSV that powers a
+    Tableau Public dashboard.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends:
+    R (>= 4.1)
+Imports:
+    dplyr,
+    httr2,
+    nflreadr,
+    purrr,
+    readr,
+    rlang,
+    rvest,
+    stringr,
+    tibble,
+    utils,
+    xml2
+Suggests:
+    testthat (>= 3.0.0)
+RoxygenNote: 7.3.2
+Config/testthat/edition: 3
