@@ -20,13 +20,17 @@ Two companion files sit alongside it:
 
 ### Columns
 
-`season`, `week`, `post_slug`, `post_url`, `flight_date`, `direction`, `leg_seq`,
+`Row ID`, `season`, `week`, `post_slug`, `post_url`, `flight_date`, `direction`, `leg_seq`,
 `away_team`, `away_team_abbr`, `away_conf`, `away_division`, `home_team`,
 `home_team_abbr`, `home_conf`, `home_division`, `venue_note`, `matchup_note`,
 `dep_airport`, `dep_time_raw`, `dep_lat`, `dep_lon`, `arr_airport`,
 `arr_time_raw`, `arr_lat`, `arr_lon`, `flight_number`, `flight_note`,
 `carrier_code`, `airline`, `aircraft_type`, `aircraft_note`, `airport_note`,
 `distance_mi`, `scraped_at`
+
+`Row ID` is a unique sequential key assigned after the final sort. Tableau uses
+it as the level of detail when drawing each flight leg as its own map-layer
+line; it is not present in the source data.
 
 ## Usage
 

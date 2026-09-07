@@ -30,3 +30,12 @@ test_that("validation rejects a shrinking dataset", {
     "Row count dropped"
   )
 })
+
+test_that("Row ID leads the file and is a unique sequential key", {
+  # Tableau uses this as the level of detail for map-layer flight paths, so
+  # its position and uniqueness are a contract, not an implementation detail.
+  f <- readr::read_csv(proj_file("inst", "extdata", "charter_flights.csv"),
+                       col_types = readr::cols(.default = readr::col_character()))
+  expect_equal(names(f)[1], "Row ID")
+  expect_equal(as.integer(f[["Row ID"]]), seq_len(nrow(f)))
+})

@@ -2,7 +2,11 @@
 
 SEASONS <- 2023:2025
 
+# "Row ID" leads the file: Tableau uses it as the level of detail when drawing
+# each flight path as its own map layer line. Assigned after the final sort, so
+# it is stable for a given dataset.
 OUTPUT_COLUMNS <- c(
+  "Row ID",
   "season", "week", "post_slug", "post_url", "flight_date", "direction", "leg_seq",
   "away_team", "away_team_abbr", "away_conf", "away_division",
   "home_team", "home_team_abbr", "home_conf", "home_division",
@@ -44,6 +48,7 @@ build_dataset <- function(seasons = SEASONS, refresh = FALSE, urls = NULL) {
 
   flights <- dplyr::arrange(flights, .data$season, .data$week, .data$flight_date,
                             .data$away_team, .data$leg_seq)
+  flights[["Row ID"]] <- seq_len(nrow(flights))
   list(
     index = idx,
     raw = raw,
