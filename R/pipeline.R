@@ -49,11 +49,39 @@ build_dataset <- function(seasons = SEASONS, refresh = FALSE, urls = NULL) {
   flights <- dplyr::arrange(flights, .data$season, .data$week, .data$flight_date,
                             .data$away_team, .data$leg_seq)
   flights[["Row ID"]] <- seq_len(nrow(flights))
+
   list(
     index = idx,
     raw = raw,
-    flights = flights[, OUTPUT_COLUMNS]
+    flights = carry_forward_scraped_at(flights[, OUTPUT_COLUMNS])
   )
+}
+
+#' Keep `scraped_at` unchanged when nothing else changed.
+#'
+#' `scraped_at` is stamped with the run date, so without this every weekly run
+#' would rewrite all 1,662 rows purely to advance a date -- defeating the
+#' workflow's "commit only if changed" check and burying real data changes in
+#' full-file diffs. The column therefore records when the data last *changed*,
+#' not when the scraper last ran.
+carry_forward_scraped_at <- function(flights) {
+  prev <- read_existing()
+  if (is.null(prev) || nrow(prev) != nrow(flights)) return(flights)
+
+  cmp <- setdiff(names(flights), "scraped_at")
+  if (!all(cmp %in% names(prev))) return(flights)
+
+  # read_existing() returns all-character columns, so compare on that footing.
+  # readr round-trips our NAs as "", so normalise both sides before comparing.
+  as_text <- function(df) {
+    out <- vapply(df[, cmp, drop = FALSE], as.character, character(nrow(df)))
+    out[is.na(out)] <- ""
+    out
+  }
+  if (identical(as_text(flights), as_text(prev))) {
+    flights$scraped_at <- prev$scraped_at
+  }
+  flights
 }
 
 #' The previously committed dataset, used only for the row-count regression

@@ -135,7 +135,10 @@ split_airport <- function(token) {
 }
 
 na_if_blank <- function(x) {
-  x <- as.character(x)
+  # Squish first: captured groups keep the source's stray whitespace, and a
+  # trailing space survives the CSV write but is stripped on read, which makes
+  # an otherwise-unchanged rebuild look like a data change.
+  x <- stringr::str_squish(as.character(x))
   x[is.na(x) | !nzchar(x) | x == "TBD"] <- NA_character_
   x
 }
