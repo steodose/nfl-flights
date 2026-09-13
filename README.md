@@ -1,5 +1,7 @@
 # NFL Charter Flights
 
+[![Update charter flight data](https://github.com/steodose/nfl-flights/actions/workflows/update.yml/badge.svg)](https://github.com/steodose/nfl-flights/actions/workflows/update.yml)
+
 Scrapes NFL team charter flight schedules from [blog.jettip.net](https://blog.jettip.net/tag/nfl-charter-flights),
 normalizes and enriches them, and publishes a single flat CSV that powers a
 [Tableau Public dashboard](https://public.tableau.com/app/profile/stephan.teodosescu/viz/2025NFLCharterFlights/Dashboard).
