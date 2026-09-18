@@ -2,8 +2,8 @@ name: Update charter flight data
 
 on:
   schedule:
-    # 12:00 UTC Wednesday (07:00 ET) -- posts go up Tuesday.
-    - cron: "0 12 * * 3"
+    # 12:00 UTC Friday (08:00 ET) -- posts go up late Thursday.
+    - cron: "0 12 * * 5"
   workflow_dispatch:
     inputs:
       refresh:

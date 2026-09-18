@@ -23,7 +23,11 @@ validate_dataset <- function(flights, idx, previous = NULL, max_parse_fail_rate 
   )
   fail_if(unique(flights$post_slug[is.na(flights$flight_date)]), "Posts with unresolvable flight dates")
 
-  bad_dist <- flights$distance_mi[!is.na(flights$distance_mi) & (flights$distance_mi <= 0 | flights$distance_mi >= 8000)]
+  # The ceiling guards against bad coordinates, not long routes. The 2026
+  # Melbourne game is a 7,927-mile leg, and no great-circle distance on Earth
+  # exceeds ~12,450 miles, so anything past 12,000 is a data error.
+  bad_dist <- flights$distance_mi[!is.na(flights$distance_mi) &
+                                    (flights$distance_mi <= 0 | flights$distance_mi >= 12000)]
   fail_if(bad_dist, "Implausible distances (mi)")
 
   rate <- mean(!flights$parse_ok)

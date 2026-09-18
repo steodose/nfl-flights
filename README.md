@@ -6,7 +6,8 @@ Scrapes NFL team charter flight schedules from [blog.jettip.net](https://blog.je
 normalizes and enriches them, and publishes a single flat CSV that powers a
 [Tableau Public dashboard](https://public.tableau.com/app/profile/stephan.teodosescu/viz/2025NFLCharterFlights/Dashboard).
 
-**Scope:** regular season only (weeks 1–18), seasons 2023–2025. 54 posts, ~1,660 flight legs.
+**Scope:** regular season only (weeks 1–18), seasons 2023 onward. New seasons are picked
+up automatically as JetTip publishes them — there is no upper bound to edit each year.
 
 ## Output
 

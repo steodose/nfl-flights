@@ -82,6 +82,10 @@ parse_matchup <- function(matchup) {
   TRAILING_PAREN <- "\\(([^)]*)\\)?\\s*$"
   strip_paren <- function(x) stringr::str_squish(sub("\\s*\\([^)]*\\)?\\s*$", "", x))
 
+  # 2026 writes the Melbourne game as "A @ vs. B (@ Melbourne, AUS)", carrying
+  # both separators. Drop a leading "vs." so the home side is just the team.
+  home_raw <- stringr::str_squish(sub("^vs\\.?\\s+", "", home_raw))
+
   venue <- stringr::str_match(home_raw, TRAILING_PAREN)[, 2]
   # "(@ Sao Paolo, Brazil)" / "(in London)" -> keep just the place.
   venue <- stringr::str_squish(sub("^(@|in)\\s+", "", venue))

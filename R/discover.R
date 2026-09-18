@@ -90,8 +90,12 @@ classify_slug <- function(slug, overrides = read_reference("post_overrides.csv")
   list(season = season, game_type = "REG", week = week)
 }
 
-#' Discover posts for the requested seasons and post types.
-discover_posts <- function(seasons = 2023:2025,
+#' Discover posts from `min_season` onward, for the requested post types.
+#'
+#' Deliberately open-ended rather than a fixed season range: a new season then
+#' starts flowing through the moment JetTip publishes its first post, with no
+#' annual edit and no calendar arithmetic.
+discover_posts <- function(min_season = FIRST_SEASON,
                            include_preseason = FALSE,
                            include_playoffs = FALSE,
                            urls = NULL) {
@@ -108,24 +112,39 @@ discover_posts <- function(seasons = 2023:2025,
   )
 
   keep <- c("REG", if (include_preseason) "PRE", if (include_playoffs) "POST")
-  idx <- idx[idx$season %in% seasons & idx$game_type %in% keep, ]
+  idx <- idx[idx$season >= min_season & idx$game_type %in% keep, ]
   idx <- idx[order(idx$season, idx$week), ]
 
-  if (identical(keep, "REG")) assert_complete_regular_season(idx, seasons)
+  if (identical(keep, "REG")) assert_regular_season_coverage(idx)
   idx
 }
 
-#' A complete regular season is weeks 1-18 exactly once per season.
-assert_complete_regular_season <- function(idx, seasons) {
+#' Check week coverage, allowing the newest season to still be under way.
+#'
+#' Completed seasons must hold weeks 1-18 exactly once. The most recent season
+#' is normally in progress, so it only has to be contiguous from week 1 -- that
+#' still catches a week the scraper missed, without failing every week of a
+#' live season.
+assert_regular_season_coverage <- function(idx) {
+  seasons <- sort(unique(idx$season))
+  if (length(seasons) == 0L) stop("No regular season posts discovered", call. = FALSE)
+  latest <- max(seasons)
+
   for (s in seasons) {
     weeks <- sort(idx$week[idx$season == s])
-    missing <- setdiff(1:18, weeks)
     dupes <- weeks[duplicated(weeks)]
+    if (length(dupes) > 0L) {
+      stop("Season ", s, " has duplicate week(s): ", paste(unique(dupes), collapse = ", "), call. = FALSE)
+    }
+
+    expected <- if (s == latest) seq_len(length(weeks)) else 1:18
+    missing <- setdiff(expected, weeks)
     if (length(missing) > 0L) {
       stop("Season ", s, " is missing week(s): ", paste(missing, collapse = ", "), call. = FALSE)
     }
-    if (length(dupes) > 0L) {
-      stop("Season ", s, " has duplicate week(s): ", paste(unique(dupes), collapse = ", "), call. = FALSE)
+    if (any(weeks > 18L)) {
+      stop("Season ", s, " has week(s) above 18: ",
+           paste(weeks[weeks > 18L], collapse = ", "), call. = FALSE)
     }
   }
   invisible(TRUE)

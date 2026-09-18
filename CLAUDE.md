@@ -13,8 +13,9 @@ Rscript scripts/update.R                 # incremental: only new posts are fetch
 Rscript -e 'testthat::test_dir("tests/testthat")'
 ```
 
-Expected output of a clean build: **54 posts, 1,662 legs, 0 unparsed, 54 tests
-passing.** A drop in any of those is a regression, not a data change.
+Expected output of a clean build grows as JetTip publishes: as of 2026 week 2
+it is **56 posts, 1,728 legs, 0 unparsed, 60 tests passing**. Counts should only
+ever go up; a drop is a regression, not a data change.
 
 ## Layout
 
@@ -67,7 +68,11 @@ explaining the reasoning — keep that habit.
 
 ## Scope
 
-Regular season only (weeks 1-18), 2023-2025. Preseason and playoff posts are
+Regular season only (weeks 1-18), 2023 onward -- `discover_posts()` takes a
+`min_season` with no upper bound, so a new season flows through automatically.
+Only *completed* seasons must hold all 18 weeks; the newest season need only be
+contiguous from week 1, so a live season does not fail the build every week.
+Preseason and playoff posts are
 classified and *then* filtered, so an unrecognised post type errors rather than
 being misfiled as a regular-season week. Re-enabling either is an argument to
 `discover_posts()`; earlier seasons need `team_aliases.csv` entries for the
@@ -85,6 +90,7 @@ Regression cases with hand-verified expected values, all covered by tests:
 | 2024 W14 GB @ DET | 4 rows: DL8863/B752 and DL8959/B739, both directions |
 | 2023 W1 DET @ KC | `home_team_abbr` KC via `team_aliases.csv` |
 | 2025 W17 BAL @ GB | outbound BWI->ATW, return GRB->BWI (asymmetric) |
+| 2026 W1 SF @ LAR | `@ vs.` matchup normalised; Melbourne, QFA, 7,927 mi |
 
 `direction` is a heuristic — earliest date in a matchup is outbound. The source
 never states it.

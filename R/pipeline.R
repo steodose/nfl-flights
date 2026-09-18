@@ -1,6 +1,8 @@
 # Pipeline: wire discovery -> fetch -> parse -> normalize -> enrich -> validate.
 
-SEASONS <- 2023:2025
+# Earliest season in scope. There is no upper bound: new seasons are picked up
+# automatically as JetTip publishes them.
+FIRST_SEASON <- 2023
 
 # "Row ID" leads the file: Tableau uses it as the level of detail when drawing
 # each flight path as its own map layer line. Assigned after the final sort, so
@@ -29,9 +31,10 @@ collect_legs <- function(idx, refresh = FALSE) {
 }
 
 #' Run the whole pipeline and return both raw and enriched tables.
-build_dataset <- function(seasons = SEASONS, refresh = FALSE, urls = NULL) {
-  idx <- discover_posts(seasons, urls = urls)
-  message("Discovered ", nrow(idx), " posts across seasons ", paste(range(seasons), collapse = "-"))
+build_dataset <- function(min_season = FIRST_SEASON, refresh = FALSE, urls = NULL) {
+  idx <- discover_posts(min_season, urls = urls)
+  message("Discovered ", nrow(idx), " posts across seasons ",
+          paste(range(idx$season), collapse = "-"))
 
   raw <- collect_legs(idx, refresh = refresh)
   message("Parsed ", nrow(raw), " legs (", sum(!raw$parse_ok), " unparsed)")

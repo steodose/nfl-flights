@@ -1,8 +1,14 @@
-test_that("the published dataset covers weeks 1-18 of every season", {
+test_that("completed seasons cover weeks 1-18; the newest may be in progress", {
   idx <- readr::read_csv(proj_file("inst", "extdata", "post_index.csv"), show_col_types = FALSE)
-  expect_equal(nrow(idx), 54)
   expect_true(all(idx$game_type == "REG"))
-  for (s in 2023:2025) expect_setequal(idx$week[idx$season == s], 1:18)
+  expect_true(all(idx$season >= 2023))
+
+  seasons <- sort(unique(idx$season))
+  for (s in setdiff(seasons, max(seasons))) {
+    expect_setequal(idx$week[idx$season == s], 1:18)
+  }
+  latest <- idx$week[idx$season == max(seasons)]
+  expect_setequal(latest, seq_along(latest))
 })
 
 test_that("validation rejects an unmapped team", {
