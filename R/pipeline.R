@@ -60,30 +60,36 @@ build_dataset <- function(min_season = FIRST_SEASON, refresh = FALSE, urls = NUL
   )
 }
 
-#' Keep `scraped_at` unchanged when nothing else changed.
+#' Keep each row's `scraped_at` unchanged unless that row changed.
 #'
 #' `scraped_at` is stamped with the run date, so without this every weekly run
-#' would rewrite all 1,662 rows purely to advance a date -- defeating the
-#' workflow's "commit only if changed" check and burying real data changes in
-#' full-file diffs. The column therefore records when the data last *changed*,
-#' not when the scraper last ran.
-carry_forward_scraped_at <- function(flights) {
-  prev <- read_existing()
-  if (is.null(prev) || nrow(prev) != nrow(flights)) return(flights)
-
-  cmp <- setdiff(names(flights), "scraped_at")
-  if (!all(cmp %in% names(prev))) return(flights)
+#' would rewrite every row purely to advance a date -- defeating the workflow's
+#' "commit only if changed" check and burying real data changes in full-file
+#' diffs. The column therefore records when a row last *changed*, not when the
+#' scraper last ran.
+#'
+#' Rows are matched on content rather than position, so a week of new legs
+#' leaves existing rows untouched. `Row ID` is excluded from the match because
+#' it is a position: a corrected leg sorting mid-file shifts every ID after it.
+carry_forward_scraped_at <- function(flights, prev = read_existing()) {
+  key_cols <- setdiff(names(flights), c("scraped_at", "Row ID"))
+  if (is.null(prev) || !all(c(key_cols, "scraped_at") %in% names(prev))) {
+    return(flights)
+  }
 
   # read_existing() returns all-character columns, so compare on that footing.
   # readr round-trips our NAs as "", so normalise both sides before comparing.
-  as_text <- function(df) {
-    out <- vapply(df[, cmp, drop = FALSE], as.character, character(nrow(df)))
-    out[is.na(out)] <- ""
-    out
+  row_key <- function(df) {
+    out <- lapply(df[, key_cols, drop = FALSE], function(x) {
+      x <- as.character(x)
+      x[is.na(x)] <- ""
+      x
+    })
+    do.call(paste, c(out, sep = "\x1f"))
   }
-  if (identical(as_text(flights), as_text(prev))) {
-    flights$scraped_at <- prev$scraped_at
-  }
+  hit <- match(row_key(flights), row_key(prev))
+  kept <- !is.na(hit)
+  flights$scraped_at[kept] <- as.Date(prev$scraped_at[hit[kept]])
   flights
 }
 
