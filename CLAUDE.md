@@ -13,8 +13,8 @@ Rscript scripts/update.R                 # incremental: only new posts are fetch
 Rscript -e 'testthat::test_dir("tests/testthat")'
 ```
 
-Expected output of a clean build grows as JetTip publishes: as of 2026 week 5
-it is **59 posts, 1,820 legs, 0 unparsed, 64 tests passing**. Counts should only
+Expected output of a clean build grows as JetTip publishes: as of 2026 week 8
+it is **62 posts, 1,899 legs, 0 unparsed, 64 tests passing**. Counts should only
 ever go up; a drop is a regression, not a data change.
 
 ## Layout
